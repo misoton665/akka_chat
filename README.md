@@ -1,4 +1,4 @@
-# Pracrice for Akka HTTP and Skinny
+# Chat App for Akka HTTP and Skinny
 
 DB: postgres 9.5.3
 
