@@ -14,3 +14,6 @@ libraryDependencies ++= Seq(
   "org.skinny-framework" %% "skinny-orm" % "2.1.2",
   "org.postgresql" % "postgresql" % "9.4-1201-jdbc41"
 )
+
+
+fork in run := true
