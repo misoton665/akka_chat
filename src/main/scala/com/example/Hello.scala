@@ -19,9 +19,16 @@ object Hello {
     val logger = Logging(system, getClass)
 
     val route =
-      path("hello") {
+      pathSingleSlash {
         get {
           complete(HttpResponse(entity = HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>")))
+        }
+      } ~
+      path("echo") {
+        get {
+          complete {
+            ""
+          }
         }
       }
 
