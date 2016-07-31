@@ -11,6 +11,12 @@ import com.typesafe.config.ConfigFactory
 import scala.io.StdIn
 
 object Hello extends App {
+  import scalikejdbc._
+  import skinny.orm._, feature._
+  import org.joda.time._
+  skinny.DBSettings.initialize()
+  implicit val session = AutoSession
+
   implicit val system = ActorSystem("my-system")
   implicit val materializer = ActorMaterializer()
   // needed for the future flatMap/onComplete in the end
@@ -37,6 +43,14 @@ object Hello extends App {
         get {
           complete {
             config.getString("app.hoge.puyo")
+          }
+        }
+      } ~
+      path("addColmun") {
+        get {
+          complete {
+            sql"create table poe(id serial, poe varchar(30));".execute.apply()
+            ""
           }
         }
       }

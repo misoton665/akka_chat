@@ -1,4 +1,4 @@
-CREATE DATABASE chardb;
+CREATE DATABASE chatdb;
 
 \c chatdb;
 
