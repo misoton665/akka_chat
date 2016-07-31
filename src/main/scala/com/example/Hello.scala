@@ -17,7 +17,7 @@ object Hello extends App {
   skinny.DBSettings.initialize()
   implicit val session = AutoSession
 
-  implicit val system = ActorSystem("my-system")
+  implicit val system = ActorSystem("akka-chat")
   implicit val materializer = ActorMaterializer()
   // needed for the future flatMap/onComplete in the end
   implicit val executionContext = system.dispatcher
