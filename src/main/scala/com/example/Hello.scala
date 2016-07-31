@@ -26,10 +26,10 @@ object Hello extends App {
         complete(HttpResponse(entity = HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>")))
       }
     } ~
-      path("echo") {
-        get {
+      pathPrefix("echo") {
+        (get & path(Segment)) { echoStr =>
           complete {
-            ""
+            echoStr
           }
         }
       } ~
