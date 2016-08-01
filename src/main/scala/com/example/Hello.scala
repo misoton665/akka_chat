@@ -6,14 +6,17 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import com.example.models.{ChatUser, ChatUser, Message, Message}
 import com.typesafe.config.ConfigFactory
 
 import scala.io.StdIn
 
 object Hello extends App {
+
   import scalikejdbc._
   import skinny.orm._, feature._
   import org.joda.time._
+
   skinny.DBSettings.initialize()
   implicit val session = AutoSession
 
@@ -51,6 +54,22 @@ object Hello extends App {
           complete {
             sql"create table poe(id serial, poe varchar(30));".execute.apply()
             ""
+          }
+        }
+      } ~
+      pathPrefix("user") {
+        (get & path(Segment)) { userName =>
+          complete {
+            val user: List[ChatUser] = ChatUser.findAll()
+            user.map(chatUser => chatUser.nickname).mkString(", ")
+          }
+        }
+      } ~
+      pathPrefix("message") {
+        get {
+          complete {
+            val user: List[Message] = Message.findAll()
+            user.map(message => message.body).mkString(", ")
           }
         }
       }
