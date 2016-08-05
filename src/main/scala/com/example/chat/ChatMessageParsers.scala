@@ -18,7 +18,7 @@ object ChatMessageParsers {
     val (isNotChatText: Boolean, messageBody: String) = hasDotAtPrefixWithMessage(chatText)
 
     if (isNotChatText) {
-      val parsers: List[ChatMessageParser[ChatMessage]] = List(JoinMessageParser)
+      val parsers: List[ChatMessageParser[ChatMessage]] = List(JoinMessageParser, LeftMessageParser)
       val parseResults: List[Option[ChatMessage]] = parsers.map(_.parse(userNameOpt, groupNameOpt, messageBody))
       parseResults.foldLeft(None.asInstanceOf[Option[ChatMessage]]) {
         case (message @ Some(_), _) => message
