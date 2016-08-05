@@ -49,7 +49,7 @@ object ChatMessageParsers {
 
     override def parse(userNameOpt: Option[String], groupNameOpt: Option[String], messageBody: String) = {
       (userNameOpt, groupNameOpt) match {
-        case (None, _) | (_, None) => messageBody match {
+        case (None, None) => messageBody match {
           case messageRegex(userName_, groupName_) => Some(JoinMessage(userName_, groupName_))
           case _ => None
         }

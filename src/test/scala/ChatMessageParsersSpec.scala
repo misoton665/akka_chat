@@ -6,7 +6,9 @@ import org.scalatest.{FlatSpec, Matchers}
 class ChatMessageParsersSpec extends FlatSpec with Matchers {
 
   val noneUserNameOpt = None
+  val someUserNameOpt = Some("uname")
   val noneGroupNameOpt = None
+  val someGroupNameOpt = Some("gname")
   val joinMessageBody = """.JOIN uname gname"""
   val noDotPrefixJoinMessageBody = """JOIN uname gname"""
 
@@ -49,5 +51,13 @@ class ChatMessageParsersSpec extends FlatSpec with Matchers {
 
   """[2] A Message user->None, group->None, msg->".JOIN uname gname" """ should "parse to JoinMessage(uname, gname)" in {
     ChatMessageParsers.parse(noneUserNameOpt, noneGroupNameOpt, joinMessageBody) should be(Some(JoinMessage("uname", "gname")))
+  }
+
+  """A Message user->Some("uname"), group-> None, msg->".JOIN uname gname"""" should "generate None that is parse error" in {
+    ChatMessageParsers.parse(someUserNameOpt, noneGroupNameOpt, joinMessageBody) should be(None)
+  }
+
+  """A Message user->None, group->Some("gname"), msg->".JOIN uname gname"""" should "generate None that is parse error" in {
+    ChatMessageParsers.parse(noneUserNameOpt, someGroupNameOpt, joinMessageBody) should be(None)
   }
 }
