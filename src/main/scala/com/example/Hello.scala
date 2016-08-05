@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import com.example.models.{ChatUser, ChatUser, Message, Message}
+import com.example.routes.{GroupsRoute, UsersRoute}
 import com.typesafe.config.ConfigFactory
 
 import scala.io.StdIn
@@ -30,48 +30,16 @@ object Hello extends App {
   val config = ConfigFactory.load()
 
   val route =
-    pathSingleSlash {
+    pathEndOrSingleSlash {
       get {
-        complete(HttpResponse(entity = HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>")))
+        complete(HttpResponse(entity = HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>akka-chat</h1>")))
       }
     } ~
-      pathPrefix("echo") {
-        (get & path(Segment)) { echoStr =>
-          complete {
-            echoStr
-          }
-        }
+      pathPrefix("users") {
+        UsersRoute.route
       } ~
-      path("conf") {
-        get {
-          complete {
-            config.getString("app.hoge.puyo")
-          }
-        }
-      } ~
-      path("addColmun") {
-        get {
-          complete {
-            sql"create table poe(id serial, poe varchar(30));".execute.apply()
-            ""
-          }
-        }
-      } ~
-      pathPrefix("user") {
-        (get & path(Segment)) { userName =>
-          complete {
-            val user: List[ChatUser] = ChatUser.findAll()
-            user.map(chatUser => chatUser.nickname).mkString(", ")
-          }
-        }
-      } ~
-      pathPrefix("message") {
-        get {
-          complete {
-            val user: List[Message] = Message.findAll()
-            user.map(message => message.body).mkString(", ")
-          }
-        }
+      pathPrefix("groups") {
+        GroupsRoute.route
       }
 
   val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
