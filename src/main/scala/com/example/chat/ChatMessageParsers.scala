@@ -2,8 +2,6 @@ package com.example.chat
 
 import com.example.chat.ChatMessages.{ChatMessage, ChatTextMessage, JoinMessage, LeftMessage}
 
-import scala.util.matching.Regex
-
 object ChatMessageParsers {
 
   def hasDotAtPrefixWithMessage(text: String): (Boolean, String) = {
@@ -14,17 +12,22 @@ object ChatMessageParsers {
     }
   }
 
+  def prefixExtractor(text: String): Option[String] = {
+    val regex = """(.*) .*""".r
+    text match {
+      case regex(prefix) => Some(prefix)
+      case _ => None
+    }
+  }
+
   def parse(userNameOpt: Option[String], groupNameOpt: Option[String], chatText: String): Option[ChatMessage] = {
     val (isNotChatText: Boolean, messageBody: String) = hasDotAtPrefixWithMessage(chatText)
 
     if (isNotChatText) {
       val parsers: List[ChatMessageParser[ChatMessage]] = List(JoinMessageParser, LeftMessageParser)
-      val parseResults: List[Option[ChatMessage]] = parsers.map(_.parse(userNameOpt, groupNameOpt, messageBody))
-      parseResults.foldLeft(None.asInstanceOf[Option[ChatMessage]]) {
-        case (message @ Some(_), _) => message
-        case (_, message @ Some(_)) => message
-        case _ => None
-      }
+      val messagePrefix = prefixExtractor(chatText)
+      val parserOpt: Option[ChatMessageParser[ChatMessage]] = parsers.find(_.messagePrefix == messagePrefix.getOrElse("undefined"))
+      parserOpt.flatMap(_.parse(userNameOpt, groupNameOpt, chatText))
     } else {
       for (
         userName <- userNameOpt;
