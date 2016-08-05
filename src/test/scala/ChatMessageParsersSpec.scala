@@ -14,16 +14,7 @@ class ChatMessageParsersSpec extends FlatSpec with Matchers {
     JoinMessageParser.messageRegex.regex should be("""JOIN (.*) (.*)""")
   }
 
-  """[1] A String "JOIN uname gname"""" should "match matcher in JoinMessageParser" in {
-    val isMatch = noDotPrefixJoinMessageBody match {
-      case JoinMessageParser.messageRegex(_, _) => true
-      case _ => false
-    }
-
-    isMatch should be(true)
-  }
-
-  """[2] A String "JOIN uname gname"""" should """match "JOIN (.*) (.*)" """ in {
+  """[1] A String "JOIN uname gname"""" should """match "JOIN (.*) (.*)" """ in {
     val regex = """JOIN (.*) (.*)""".r
     val isMatch = noDotPrefixJoinMessageBody match {
       case regex(_, _) => true
@@ -33,10 +24,19 @@ class ChatMessageParsersSpec extends FlatSpec with Matchers {
     isMatch should be(true)
   }
 
-  """[3] A String "JOIN uname gname"""" should """match "JOIN (.*) (.*)" and split to "uname" and "gname" """ in {
+  """[2] A String "JOIN uname gname"""" should """match "JOIN (.*) (.*)" and split to "uname" and "gname" """ in {
     val regex = """JOIN (.*) (.*)""".r
     val isMatch = noDotPrefixJoinMessageBody match {
       case regex("uname", "gname") => true
+      case _ => false
+    }
+
+    isMatch should be(true)
+  }
+
+  """[3] A String "JOIN uname gname"""" should "match matcher in JoinMessageParser" in {
+    val isMatch = noDotPrefixJoinMessageBody match {
+      case JoinMessageParser.messageRegex(_, _) => true
       case _ => false
     }
 
