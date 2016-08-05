@@ -1,4 +1,4 @@
-package com.example.models
+package com.example.dbmodels
 
 import org.joda.time.DateTime
 import skinny.orm.{Alias, SkinnyCRUDMapper}
