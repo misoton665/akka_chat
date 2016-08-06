@@ -13,7 +13,7 @@ object ChatMessageParsers {
   }
 
   def prefixExtractor(text: String): Option[String] = {
-    val regex = """(.*) .*""".r
+    val regex = """\.([a-zA-z]*) .*""".r
     text match {
       case regex(prefix) => Some(prefix)
       case _ => None
@@ -26,8 +26,10 @@ object ChatMessageParsers {
     if (isNotChatText) {
       val parsers: List[ChatMessageParser[ChatMessage]] = List(JoinMessageParser, LeftMessageParser)
       val messagePrefix = prefixExtractor(chatText)
-      val parserOpt: Option[ChatMessageParser[ChatMessage]] = parsers.find(_.messagePrefix == messagePrefix.getOrElse("undefined"))
-      parserOpt.flatMap(_.parse(userNameOpt, groupNameOpt, chatText))
+      val parserOpt: Option[ChatMessageParser[ChatMessage]] =
+        parsers.collectFirst{case p if p.messagePrefix == messagePrefix.getOrElse("undefined") => p}
+      parserOpt.flatMap(_.parse(userNameOpt, groupNameOpt, messageBody))
+
     } else {
       for (
         userName <- userNameOpt;

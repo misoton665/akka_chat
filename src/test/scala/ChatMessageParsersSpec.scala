@@ -45,6 +45,12 @@ class ChatMessageParsersSpec extends FlatSpec with Matchers {
     isMatch should be(true)
   }
 
+  """[4] A String ".JOIN uname gname"""" should """be extract "JOIN" by prefixExtractor""" in {
+    val prefix = ChatMessageParsers.prefixExtractor(joinMessageBody)
+
+    prefix.getOrElse("undefined") should be(JoinMessageParser.messagePrefix)
+  }
+
   """[1] A Message user->None, group->None, msg->".JOIN uname gname" """ should "has dot prefix" in {
     ChatMessageParsers.hasDotAtPrefixWithMessage(joinMessageBody) should be((true, "JOIN uname gname"))
   }
