@@ -42,7 +42,7 @@ object Hello extends App {
         GroupsRoute.route
       } ~
       pathPrefix("chat") {
-        ChatRoute.route
+        ChatRoute(system, materializer).route
       }
 
   val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
