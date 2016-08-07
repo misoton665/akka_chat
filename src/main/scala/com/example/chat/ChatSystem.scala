@@ -19,7 +19,7 @@ class ChatSystem(actorSystem: ActorSystem) {
       implicit builder =>
         import GraphDSL.Implicits._
 
-        val toNewMessage = builder.add(Flow[MessageBody].map{NewMessage(sender, _).asInstanceOf[ChatSystemMessages.ChatSystemMessage]})
+        val toNewMessage = builder.add(Flow[MessageBody].map{NewMessage(sender, _)})
 
         val chatSink = builder.add(chatLeftSink(sender))
 

@@ -12,30 +12,30 @@ case class ChatRoute(actorSystem: ActorSystem, materializer: Materializer) exten
 
   import akka.http.scaladsl.server.Directives._
 
-  def chatHandler(groupName: String, userName: String): Flow[Message, Message, _] =
-    Flow[Message].map {
-      case TextMessage.Strict(text) => TextMessage(s"[-] @$userName: " + text + s" to GROUP: $groupName")
-      case _ => TextMessage(s"[!] @$userName: Message type unsupported.")
-    }
-
   def handler(userId: String): Flow[Message, Message, _] = Flow.fromGraph(GraphDSL.create(Source.actorRef[SystemMessage](5, OverflowStrategy.fail)) {
     implicit builder =>
       chatSource =>
-      import GraphDSL.Implicits._
-      val fromWebsocket = builder.add(Flow[Message].collect {
-        case TextMessage.Strict(txt) => NewMessage(userId, MessageBody(txt))
-      })
+        import GraphDSL.Implicits._
+        val fromWebsocket = builder.add(Flow[Message].collect {
+          case TextMessage.Strict(txt) => NewMessage(userId, MessageBody(txt))
+        })
 
-      val merge = builder.add(Merge[ChatSystemMessage](2))
+        val merge = builder.add(Merge[ChatSystemMessage](2))
 
-      val backToWebsocket = builder.add(Flow[SystemMessage].map[Message]{m => TextMessage.Strict(m.body) })
+        val backToWebsocket = builder.add(Flow[SystemMessage].map[Message] { m => TextMessage.Strict(m.body) })
 
-      val actorAsSource = Source.actorRef[ChatSystemMessage](5, OverflowStrategy.fail).mapMaterializedValue{chatSystem.chatActor ! JoinedMessage(userId, _)}
 
-      fromWebsocket ~> merge ~> chatSystem.chatLeftSink(userId)
-      actorAsSource ~> merge
-      chatSource ~> backToWebsocket
-      FlowShape(fromWebsocket.in, backToWebsocket.out)
+        val actorAsSource = builder.materializedValue.map {
+          JoinedMessage(userId, _)
+        }
+        //          Source.actorRef[ChatSystemMessage](5, OverflowStrategy.fail).mapMaterializedValue {
+        //          chatSystem.chatActor ! JoinedMessage(userId, _)
+        //        }
+
+        fromWebsocket ~> merge ~> chatSystem.chatLeftSink(userId)
+        actorAsSource ~> merge
+        chatSource ~> backToWebsocket
+        FlowShape(fromWebsocket.in, backToWebsocket.out)
   })
 
   val chatSystem = new ChatSystem(actorSystem)
