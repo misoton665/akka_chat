@@ -1,14 +1,14 @@
 package com.example.routes
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.http.scaladsl.server.Route
-import akka.stream.{ClosedShape, FlowShape, Materializer, OverflowStrategy}
-import akka.stream.scaladsl.{Flow, GraphDSL, Merge, Sink, Source}
-import com.example.chat.{ChatMessageParsers, ChatSystem, ChatSystemMessages, MessageBody}
+import akka.stream.{FlowShape, Materializer, OverflowStrategy, SourceShape}
+import akka.stream.scaladsl.{Flow, GraphDSL, Merge, Source}
+import com.example.chat.ChatSystem
 import com.example.chat.ChatSystemMessages._
 
-case class ChatRoute(actorSystem: ActorSystem, materializer: Materializer) extends RouteExtractable {
+case class ChatRoute()(implicit actorSystem: ActorSystem, materializer: Materializer) extends RouteExtractable {
 
   import akka.http.scaladsl.server.Directives._
 
@@ -17,20 +17,17 @@ case class ChatRoute(actorSystem: ActorSystem, materializer: Materializer) exten
       chatSource =>
         import GraphDSL.Implicits._
         val fromWebsocket = builder.add(Flow[Message].collect {
-          case TextMessage.Strict(txt) => NewMessage(userId, MessageBody(txt))
+          case TextMessage.Strict(txt) =>
+            NewMessage(userId, MessageBody(txt))
         })
 
         val merge = builder.add(Merge[ChatSystemMessage](2))
 
         val backToWebsocket = builder.add(Flow[SystemMessage].map[Message] { m => TextMessage.Strict(m.body) })
 
-
         val actorAsSource = builder.materializedValue.map {
           JoinedMessage(userId, _)
         }
-        //          Source.actorRef[ChatSystemMessage](5, OverflowStrategy.fail).mapMaterializedValue {
-        //          chatSystem.chatActor ! JoinedMessage(userId, _)
-        //        }
 
         fromWebsocket ~> merge ~> chatSystem.chatLeftSink(userId)
         actorAsSource ~> merge
@@ -38,7 +35,7 @@ case class ChatRoute(actorSystem: ActorSystem, materializer: Materializer) exten
         FlowShape(fromWebsocket.in, backToWebsocket.out)
   })
 
-  val chatSystem = new ChatSystem(actorSystem)
+  val chatSystem = ChatSystem()
 
   override def route: Route =
     (get & parameter('name)) { (userId) =>

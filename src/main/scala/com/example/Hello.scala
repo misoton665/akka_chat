@@ -15,7 +15,6 @@ object Hello extends App {
 
   import scalikejdbc._
   import skinny.orm._, feature._
-  import org.joda.time._
 
   skinny.DBSettings.initialize()
   implicit val session = AutoSession
@@ -42,7 +41,7 @@ object Hello extends App {
         GroupsRoute.route
       } ~
       pathPrefix("chat") {
-        ChatRoute(system, materializer).route
+        ChatRoute().route
       }
 
   val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)

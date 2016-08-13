@@ -17,7 +17,7 @@ class ChatGroupActor extends Actor{
       broadcast(SystemMessage(userId, s"[ LEFT ] @$userId"))
 
     case NewMessage(userId, body) =>
-      broadcast(SystemMessage(userId, s"@$userId| ${body.value}"))
+      broadcast(SystemMessage(userId, s"@$userId | ${body.value}"))
 
     case _ => ()
   }
