@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import com.example.routes.{ChatRoute, GroupsRoute, UsersRoute}
+import com.example.routes.{ChatRoute, UsersRoute}
 import com.typesafe.config.ConfigFactory
 
 import scala.io.StdIn
@@ -36,9 +36,6 @@ object Hello extends App {
     } ~
       pathPrefix("users") {
         UsersRoute.route
-      } ~
-      pathPrefix("groups") {
-        GroupsRoute.route
       } ~
       pathPrefix("chat") {
         ChatRoute().route
