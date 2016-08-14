@@ -1,19 +1,17 @@
 package com.example.chat
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor
 import com.example.chat.ChatSystemMessages._
 
 class ChatGroupActor extends Actor {
 
-  var participants: Map[String, ActorRef] = Map.empty[String, ActorRef]
-
   override def receive: Receive = {
     case msg@JoinedMessage(userId, participant) =>
-      participants += userId -> participant
+      ChatMemberRepository.insertParticipant(userId, participant)
       broadcast(msg.toSystemMessage)
 
     case msg@LeftMessage(userId) =>
-      participants -= userId
+      ChatMemberRepository.deleteParticipant(userId)
       broadcast(msg.toSystemMessage)
 
     case msg@NewMessage(userId, body) =>
@@ -23,6 +21,6 @@ class ChatGroupActor extends Actor {
   }
 
   def broadcast(systemMessage: SystemMessage): Unit = {
-    participants.foreach(_._2 ! systemMessage)
+    ChatMemberRepository.findParticipant(_ => true).foreach(_._2 ! systemMessage)
   }
 }
