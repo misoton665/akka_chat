@@ -22,7 +22,9 @@ case class ChatStreamHandler()(implicit actorSystem: ActorSystem, materializer: 
 
         val merge = builder.add(Merge[ChatSystemMessage](2))
 
-        val backToWebsocket = builder.add(Flow[SystemMessage].map[Message] { m => TextMessage.Strict(m.body) })
+        val backToWebsocket = builder.add(Flow[SystemMessage].map[Message] {
+          case SystemMessage(_, body) => TextMessage.Strict(body)
+        })
 
         val actorAsSource = builder.materializedValue.map {
           JoinedMessage(userId, _)
@@ -31,6 +33,7 @@ case class ChatStreamHandler()(implicit actorSystem: ActorSystem, materializer: 
         fromWebsocket ~> merge ~> chatSystem.chatLeftSink(userId)
         actorAsSource ~> merge
         chatSource ~> backToWebsocket
+
         FlowShape(fromWebsocket.in, backToWebsocket.out)
   })
 }
