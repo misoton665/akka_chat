@@ -23,7 +23,7 @@ case class ChatStreamHandler()(implicit actorSystem: ActorSystem, materializer: 
           val merge = builder.add(Merge[ChatSystemMessage](2))
 
           val toClientFlow = builder.add(Flow[SystemMessage].map[Message] {
-            case SystemMessage(_, body) => TextMessage.Strict(body)
+            case SystemMessage(body) => TextMessage.Strict(body)
           })
 
           val actorMaterializedSource = builder.materializedValue.map {
