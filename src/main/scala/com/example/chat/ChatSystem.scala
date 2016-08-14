@@ -5,9 +5,10 @@ import akka.stream.scaladsl.Sink
 import com.example.chat.ChatSystemMessages.LeftMessage
 
 case class ChatSystem()(implicit actorSystem: ActorSystem) {
-  val chatActor = actorSystem.actorOf(Props[ChatGroupActor])
+  val chatGroupActor = actorSystem.actorOf(Props[ChatGroupActor])
 
-  def chatLeftSink(userId: String) = Sink.actorRef[ChatSystemMessages.ChatSystemMessage](chatActor, LeftMessage(userId))
+  def toChatGroupActorSink(userId: String) =
+    Sink.actorRef[ChatSystemMessages.ChatSystemMessage](chatGroupActor, LeftMessage(userId))
 }
 
 object ChatSystemMessages {

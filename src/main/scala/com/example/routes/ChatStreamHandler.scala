@@ -13,28 +13,28 @@ case class ChatStreamHandler()(implicit actorSystem: ActorSystem, materializer: 
 
   def handler(userId: String): Flow[Message, Message, _] =
     Flow.fromGraph(GraphDSL.create(Source.actorRef[SystemMessage](5, OverflowStrategy.fail)) {
-    implicit builder =>
-      participantSource =>
-        import GraphDSL.Implicits._
-        val fromClientFlow = builder.add(Flow[Message].collect {
-          case TextMessage.Strict(txt) => NewMessage(userId, MessageBody(txt))
-        })
+      implicit builder =>
+        participantSource =>
+          import GraphDSL.Implicits._
+          val fromClientFlow = builder.add(Flow[Message].collect {
+            case TextMessage.Strict(txt) => NewMessage(userId, MessageBody(txt))
+          })
 
-        val merge = builder.add(Merge[ChatSystemMessage](2))
+          val merge = builder.add(Merge[ChatSystemMessage](2))
 
-        val toClientFlow = builder.add(Flow[SystemMessage].map[Message] {
-          case SystemMessage(_, body) => TextMessage.Strict(body)
-        })
+          val toClientFlow = builder.add(Flow[SystemMessage].map[Message] {
+            case SystemMessage(_, body) => TextMessage.Strict(body)
+          })
 
-        val actorMaterializedSource = builder.materializedValue.map { a =>
-          JoinedMessage(userId, a)
-        }
+          val actorMaterializedSource = builder.materializedValue.map {
+            JoinedMessage(userId, _)
+          }
 
-        fromClientFlow          ~> merge ~> chatSystem.chatLeftSink(userId)
-        actorMaterializedSource ~> merge
+          fromClientFlow ~> merge ~> chatSystem.toChatGroupActorSink(userId)
+          actorMaterializedSource ~> merge
 
-        participantSource ~> toClientFlow
+          participantSource ~> toClientFlow
 
-        FlowShape(fromClientFlow.in, toClientFlow.out)
-  })
+          FlowShape(fromClientFlow.in, toClientFlow.out)
+    })
 }
