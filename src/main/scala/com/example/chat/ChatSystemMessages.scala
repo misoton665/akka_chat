@@ -11,7 +11,7 @@ object ChatSystemMessages {
   case class MessageBody(value: String)
 
   case class JoinedMessage(userId: String, member: ActorRef) extends ChatSystemMessage {
-    override val toSystemMessage: SystemMessage = SystemMessage(userId, "[JOINED] @$userId")
+    override val toSystemMessage: SystemMessage = SystemMessage(userId, s"[JOINED] @$userId")
   }
 
   case class LeftMessage(userId: String) extends ChatSystemMessage {
