@@ -2,7 +2,7 @@ package com.example.chat
 
 import akka.actor.ActorRef
 
-object ChatMemberRepository {
+object ChatParticipantRepository {
 
   type Participant = ActorRef
   private var participants = Map.empty[String, Participant]
