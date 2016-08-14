@@ -14,26 +14,27 @@ case class ChatStreamHandler()(implicit actorSystem: ActorSystem, materializer: 
   def handler(userId: String): Flow[Message, Message, _] =
     Flow.fromGraph(GraphDSL.create(Source.actorRef[SystemMessage](5, OverflowStrategy.fail)) {
     implicit builder =>
-      chatSource =>
+      participantSource =>
         import GraphDSL.Implicits._
-        val fromWebsocket = builder.add(Flow[Message].collect {
+        val fromClientFlow = builder.add(Flow[Message].collect {
           case TextMessage.Strict(txt) => NewMessage(userId, MessageBody(txt))
         })
 
         val merge = builder.add(Merge[ChatSystemMessage](2))
 
-        val backToWebsocket = builder.add(Flow[SystemMessage].map[Message] {
+        val toClientFlow = builder.add(Flow[SystemMessage].map[Message] {
           case SystemMessage(_, body) => TextMessage.Strict(body)
         })
 
-        val actorAsSource = builder.materializedValue.map {
-          JoinedMessage(userId, _)
+        val actorMaterializedSource = builder.materializedValue.map { a =>
+          JoinedMessage(userId, a)
         }
 
-        fromWebsocket ~> merge ~> chatSystem.chatLeftSink(userId)
-        actorAsSource ~> merge
-        chatSource ~> backToWebsocket
+        fromClientFlow          ~> merge ~> chatSystem.chatLeftSink(userId)
+        actorMaterializedSource ~> merge
 
-        FlowShape(fromWebsocket.in, backToWebsocket.out)
+        participantSource ~> toClientFlow
+
+        FlowShape(fromClientFlow.in, toClientFlow.out)
   })
 }
