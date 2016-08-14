@@ -3,21 +3,21 @@ package com.example.chat
 import akka.actor.{Actor, ActorRef}
 import com.example.chat.ChatSystemMessages._
 
-class ChatGroupActor extends Actor{
+class ChatGroupActor extends Actor {
 
   var participants: Map[String, ActorRef] = Map.empty[String, ActorRef]
 
   override def receive: Receive = {
-    case JoinedMessage(userId, participant) =>
+    case msg@JoinedMessage(userId, participant) =>
       participants += userId -> participant
-      broadcast(SystemMessage(userId, s"[JOINED] @$userId"))
+      broadcast(msg.toSystemMessage)
 
-    case LeftMessage(userId) =>
+    case msg@LeftMessage(userId) =>
       participants -= userId
-      broadcast(SystemMessage(userId, s"[ LEFT ] @$userId"))
+      broadcast(msg.toSystemMessage)
 
-    case NewMessage(userId, body) =>
-      broadcast(SystemMessage(userId, s"@$userId | ${body.value}"))
+    case msg@NewMessage(userId, body) =>
+      broadcast(msg.toSystemMessage)
 
     case _ => ()
   }
