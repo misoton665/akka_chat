@@ -19,7 +19,7 @@ object ChatSystemMessages {
   }
 
   case class NewMessage(userId: String, body: MessageBody) extends ChatSystemMessage {
-    override val toSystemMessage: SystemMessage = SystemMessage(userId, s"@$userId $body")
+    override val toSystemMessage: SystemMessage = SystemMessage(userId, s"@$userId ${body.value}")
   }
 
   case class SystemMessage(userId: String, body: String)
