@@ -3,7 +3,7 @@ package com.example.dbmodels
 import org.joda.time.DateTime
 import skinny.orm.{Alias, SkinnyCRUDMapper}
 
-case class ChatUser(id: Long, name: Option[String], nickname: Option[String], bio: Option[String], signUpDate: DateTime)
+case class ChatUser(id: Long, userId: String, name: String, createAt: DateTime)
 
 case object ChatUser extends SkinnyCRUDMapper[ChatUser] {
 
@@ -15,9 +15,8 @@ case object ChatUser extends SkinnyCRUDMapper[ChatUser] {
   override def extract(rs: WrappedResultSet, n: ResultName[ChatUser]): ChatUser =
     ChatUser(
       id = rs.long(n.id),
-      name = rs.stringOpt(n.name),
-      nickname = rs.stringOpt(n.nickname),
-      bio = rs.stringOpt(n.bio),
-      signUpDate = rs.jodaDateTime(n.signUpDate)
+      userId = rs.string(n.userId),
+      name = rs.string(n.name),
+      createAt = rs.jodaDateTime(n.createAt)
     )
 }
