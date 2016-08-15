@@ -1,15 +1,15 @@
 package com.example.routes
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.stream.{FlowShape, Materializer, OverflowStrategy}
-import akka.stream.scaladsl.{Flow, GraphDSL, Merge, Source}
-import com.example.chat.ChatSystem
+import akka.stream.scaladsl.{Flow, GraphDSL, Merge, Sink, Source}
+import com.example.chat.{ChatGroupActor, ChatSystemMessages}
 import com.example.chat.ChatSystemMessages._
 
 case class ChatStreamHandler()(implicit actorSystem: ActorSystem, materializer: Materializer) {
 
-  val chatSystem = ChatSystem()
+  val chatGroupActor = actorSystem.actorOf(Props[ChatGroupActor])
 
   def handler(userId: String): Flow[Message, Message, _] =
     Flow.fromGraph(GraphDSL.create(Source.actorRef[SystemMessage](5, OverflowStrategy.fail)) {
@@ -30,7 +30,10 @@ case class ChatStreamHandler()(implicit actorSystem: ActorSystem, materializer: 
             JoinedMessage(userId, _)
           }
 
-          fromClientFlow ~> merge ~> chatSystem.toChatGroupActorSink(userId)
+          def toChatGroupActorSink(userId: String) =
+            Sink.actorRef[ChatSystemMessages.ChatSystemMessage](chatGroupActor, LeftMessage(userId))
+
+          fromClientFlow ~> merge ~> toChatGroupActorSink(userId)
           actorMaterializedSource ~> merge
 
           participantSource ~> toClientFlow
