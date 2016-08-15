@@ -1,13 +1,21 @@
 package com.example.routes
+
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
+import com.example.dbmodels.ChatUser
+import scalikejdbc._
 
-object UsersRoute extends RouteExtractable {
+case class UsersRoute()(implicit dBSession: DBSession) extends RouteExtractable {
   override def route: Route =
     path("signUp") {
-      (get & parameter('name, 'nickname)) { (name, nickname) =>
+      (get & parameter('userId, 'name)) { (userId, name) =>
         complete {
-          s"signUp by $name, $nickname"
+          if (ChatUser.where('userId -> userId).count('userId) == 0) {
+            ChatUser.createWithAttributes('userId -> userId, 'name -> name)
+            s"signUp by $userId, $name"
+          } else {
+            s"$userId was already signed up"
+          }
         }
       }
     }

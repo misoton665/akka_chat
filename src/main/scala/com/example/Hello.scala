@@ -35,7 +35,7 @@ object Hello extends App {
       }
     } ~
       pathPrefix("users") {
-        UsersRoute.route
+        UsersRoute().route
       } ~
       pathPrefix("chat") {
         ChatRoute().route
