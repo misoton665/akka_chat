@@ -8,16 +8,18 @@ case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSes
   private val chatUserService = ChatUserService()
   private val chatMessageService = ChatMessageService()
 
-  def signUp(userId: String, name: String): Option[Long] = {
+  type DBRowId = Long
+
+  def signUp(userId: String, name: String): Option[DBRowId] = {
     if (!chatUserService.exist(userId)) {
-      val tableId = chatUserService.create(userId, name)
-      Some(tableId)
+      val rowId = chatUserService.create(userId, name)
+      Some(rowId)
     } else {
       None
     }
   }
 
-  def addMessage(userId: String, body: String): Option[Long] = {
+  def addMessage(userId: String, body: String): Option[DBRowId] = {
     if (chatUserService.exist(userId)) {
       Some(chatMessageService.add(userId, body))
     } else {
