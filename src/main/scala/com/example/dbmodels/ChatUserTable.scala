@@ -28,7 +28,11 @@ case class ChatUserService()(implicit dBSession: DBSession) {
     ChatUser.where('userId -> userId).count('userId) >= 1
   }
 
-  def createUser(userId: String, name: String): Long = {
+  def create(userId: String, name: String): Long = {
     ChatUser.createWithAttributes('userId -> userId, 'name -> name)
+  }
+
+  def find(userId: String): Option[ChatUserRow] = {
+    ChatUser.where('userId -> userId).apply().headOption
   }
 }
