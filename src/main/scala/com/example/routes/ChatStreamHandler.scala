@@ -2,7 +2,7 @@ package com.example.routes
 
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.stream.{FlowShape, Materializer, OverflowStrategy}
-import akka.stream.scaladsl.{Flow, GraphDSL, Merge, Sink, Source}
+import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Merge, Sink, Source}
 import com.example.chat.{ChatSystemMessages, ChatSystemService}
 import com.example.chat.ChatSystemMessages._
 
@@ -17,7 +17,9 @@ case class ChatStreamHandler()(implicit chatSystemService: ChatSystemService, ma
             case TextMessage.Strict(txt) => NewMessage(userId, MessageBody(txt))
           })
 
-          val merge = builder.add(Merge[ChatSystemMessage](2))
+          val merge = builder.add(Merge[ChatSystemMessage](3))
+
+          val broadcast = builder.add(Broadcast[ChatSystemMessage](2))
 
           val toClientFlow = builder.add(Flow[SystemMessage].map[Message] {
             case SystemMessage(body) => TextMessage.Strict(body)
@@ -27,11 +29,20 @@ case class ChatStreamHandler()(implicit chatSystemService: ChatSystemService, ma
             JoinedMessage(userId, _)
           }
 
+          val reportLastMessageFlow = builder.add(Flow[ChatSystemMessage].map {
+            case JoinedMessage(_, userActor) => ReportMessage(chatSystemService.findMessages(20), userActor)
+            case m@_ => m
+          })
+
           def toChatGroupActorSink(userId: String) =
             Sink.actorRef[ChatSystemMessages.ChatSystemMessage](chatSystemService.chatGroupActor, LeftMessage(userId))
 
+          actorMaterializedSource ~> broadcast
+
+          broadcast ~> reportLastMessageFlow ~> merge
+          broadcast ~> merge
           fromClientFlow ~> merge ~> toChatGroupActorSink(userId)
-          actorMaterializedSource ~> merge
+
 
           participantSource ~> toClientFlow
 

@@ -17,6 +17,9 @@ class ChatGroupActor extends Actor {
     case msg@NewMessage(userId, body) =>
       broadcast(msg.toSystemMessage)
 
+    case msg@ReportMessage(_, userActor) =>
+      userActor ! msg.toSystemMessage
+
     case _ => ()
   }
 

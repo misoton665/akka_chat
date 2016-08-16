@@ -1,7 +1,7 @@
 package com.example.chat
 
 import akka.actor.ActorRef
-import com.example.dbmodels.{ChatMessageService, ChatUserService}
+import com.example.dbmodels.{ChatMessageRow, ChatMessageService, ChatUserService}
 import scalikejdbc.DBSession
 
 case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSession) {
@@ -25,5 +25,9 @@ case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSes
     } else {
       None
     }
+  }
+
+  def findMessages(limit: Int): List[ChatMessageRow] = {
+    chatMessageService.findRows(limit)
   }
 }

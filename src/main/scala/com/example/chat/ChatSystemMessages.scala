@@ -1,6 +1,7 @@
 package com.example.chat
 
 import akka.actor.ActorRef
+import com.example.dbmodels.ChatMessageRow
 
 object ChatSystemMessages {
 
@@ -20,6 +21,13 @@ object ChatSystemMessages {
 
   case class NewMessage(userId: String, body: MessageBody) extends ChatSystemMessage {
     override val toSystemMessage: SystemMessage = SystemMessage(s"@$userId ${body.value}")
+  }
+
+  case class ReportMessage(messages: List[ChatMessageRow], userActor: ActorRef) extends ChatSystemMessage {
+    private val chatMessagesText = messages.map{m => s"@${m.userId} ${m.body}"}.mkString("\n")
+
+    override val toSystemMessage: SystemMessage =
+      SystemMessage(s"last ${messages.size} messages\n$chatMessagesText")
   }
 
   case class SystemMessage(body: String)
