@@ -34,6 +34,13 @@ case class ChatStreamHandler()(implicit chatSystemService: ChatSystemService, ma
             case m@_ => m
           })
 
+          val registerMessageFlow = builder.add(Flow[ChatSystemMessage].map {
+            case msg@NewMessage(_userId, body) =>
+              chatSystemService.addMessage(_userId, body.value)
+              msg
+            case msg@_ => msg
+          })
+
           def toChatGroupActorSink(userId: String) =
             Sink.actorRef[ChatSystemMessages.ChatSystemMessage](chatSystemService.chatGroupActor, LeftMessage(userId))
 
@@ -41,8 +48,7 @@ case class ChatStreamHandler()(implicit chatSystemService: ChatSystemService, ma
 
           broadcast ~> reportLastMessageFlow ~> merge
           broadcast ~> merge
-          fromClientFlow ~> merge ~> toChatGroupActorSink(userId)
-
+          fromClientFlow ~> registerMessageFlow ~> merge ~> toChatGroupActorSink(userId)
 
           participantSource ~> toClientFlow
 
