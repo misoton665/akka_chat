@@ -8,7 +8,7 @@ case class ChatSystemService()(implicit dBSession: DBSession) {
 
   def signUp(userId: String, name: String): Option[Long] = {
     if (chatUserService.exist(userId)) {
-      val tableId = chatUserService.createUser(userId, name)
+      val tableId = chatUserService.create(userId, name)
       Some(tableId)
     } else {
       None
