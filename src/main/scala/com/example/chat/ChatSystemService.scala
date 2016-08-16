@@ -17,6 +17,10 @@ case class ChatSystemService()(implicit dBSession: DBSession) {
   }
 
   def addMessage(userId: String, body: String): Option[Long] = {
-    chatMessageService.add(userId, body)
+    if (chatUserService.exist(userId)) {
+      Some(chatMessageService.add(userId, body))
+    } else {
+      None
+    }
   }
 }

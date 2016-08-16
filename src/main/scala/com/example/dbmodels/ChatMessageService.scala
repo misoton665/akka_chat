@@ -23,15 +23,9 @@ private case object ChatMessage extends SkinnyCRUDMapper[ChatMessageRow] {
 }
 
 case class ChatMessageService()(implicit dBSession: DBSession) {
-  val chatUserService = ChatUserService()
 
-  def add(userId: String, body: String): Option[Long] = {
-    if(chatUserService.exist(userId)) {
-      val id = ChatMessage.createWithAttributes('userId -> userId, 'body -> body)
-      Some(id)
-    } else {
-      None
-    }
+  def add(userId: String, body: String): Long = {
+    ChatMessage.createWithAttributes('userId -> userId, 'body -> body)
   }
 
   def findAll(userId: String): List[ChatMessageRow] = {
