@@ -4,28 +4,27 @@ import org.joda.time.DateTime
 import scalikejdbc.DBSession
 import skinny.orm.{Alias, SkinnyCRUDMapper}
 
-case class ChatUser(id: Long, userId: String, name: String, createAt: Option[DateTime])
+case class ChatUserRow(id: Long, userId: String, name: String, createAt: DateTime)
 
-private case object ChatUser extends SkinnyCRUDMapper[ChatUser] {
+private case object ChatUser extends SkinnyCRUDMapper[ChatUserRow] {
 
   import scalikejdbc._
 
   override lazy val tableName = "chat_user"
-  override lazy val defaultAlias: Alias[ChatUser] = createAlias("u")
+  override lazy val defaultAlias: Alias[ChatUserRow] = createAlias("u")
 
-  override def extract(rs: WrappedResultSet, n: ResultName[ChatUser]): ChatUser =
-    ChatUser(
+  override def extract(rs: WrappedResultSet, n: ResultName[ChatUserRow]): ChatUserRow =
+    ChatUserRow(
       id = rs.long(n.id),
       userId = rs.string(n.userId),
       name = rs.string(n.name),
-      createAt = rs.jodaDateTimeOpt(n.createAt)
+      createAt = rs.jodaDateTime(n.createAt)
     )
 }
 
 case class ChatUserService()(implicit dBSession: DBSession) {
 
   def exist(userId: String): Boolean = {
-    val user: ChatUser = ChatUser.where('userId -> userId).apply().head
     ChatUser.where('userId -> userId).count('userId) >= 1
   }
 
