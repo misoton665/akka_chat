@@ -1,6 +1,6 @@
 package com.example.chat
 
-import akka.actor.Actor
+import akka.actor.{Actor, Terminated}
 import com.example.chat.ChatSystemMessages._
 
 class ChatGroupActor extends Actor {
@@ -18,6 +18,9 @@ class ChatGroupActor extends Actor {
       broadcast(msg.toSystemMessage)
 
     case msg@ReportMessage(_, userActor) =>
+      userActor ! msg.toSystemMessage
+
+    case msg@RejectMessage(_, userActor) =>
       userActor ! msg.toSystemMessage
 
     case _ => ()

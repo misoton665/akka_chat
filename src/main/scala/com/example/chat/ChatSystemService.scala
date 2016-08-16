@@ -1,7 +1,7 @@
 package com.example.chat
 
 import akka.actor.ActorRef
-import com.example.dbmodels.{ChatMessageRow, ChatMessageService, ChatUserService}
+import com.example.dbmodels.{ChatMessageRow, ChatMessageService, ChatUserRow, ChatUserService}
 import scalikejdbc.DBSession
 
 case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSession) {
@@ -17,6 +17,10 @@ case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSes
     } else {
       None
     }
+  }
+
+  def findUser(userId: String): Option[ChatUserRow] = {
+    chatUserService.find(userId)
   }
 
   def addMessage(userId: String, body: String): Option[DBRowId] = {

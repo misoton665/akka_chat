@@ -26,7 +26,10 @@ case class ChatStreamHandler()(implicit chatSystemService: ChatSystemService, ma
           })
 
           val actorMaterializedSource = builder.materializedValue.map {
-            JoinedMessage(userId, _)
+            actor => chatSystemService.findUser(userId) match {
+              case Some(_) => JoinedMessage(userId, actor)
+              case None => RejectMessage(userId, actor)
+            }
           }
 
           val reportLastMessageFlow = builder.add(Flow[ChatSystemMessage].map {

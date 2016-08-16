@@ -30,6 +30,10 @@ object ChatSystemMessages {
       SystemMessage(s"last ${messages.size} messages\n$chatMessagesText")
   }
 
+  case class RejectMessage(userId: String, userActor: ActorRef) extends ChatSystemMessage {
+    override val toSystemMessage: SystemMessage = SystemMessage(s"@$userId is not found.")
+  }
+
   case class SystemMessage(body: String)
 
 }
