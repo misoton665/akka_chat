@@ -12,7 +12,10 @@ case class UsersRoute()(implicit dBSession: DBSession) extends RouteExtractable 
     path("signUp") {
       (get & parameter('userId, 'name)) { (userId, name) =>
         complete {
-          chatSystem.signUp(userId, name)
+          chatSystem.signUp(userId, name) match {
+            case Some(_) => s"signUp by $userId, $name"
+            case None => s"$userId was already signed up"
+          }
         }
       }
     }
