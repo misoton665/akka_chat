@@ -28,7 +28,7 @@ case class ChatMessageService()(implicit dBSession: DBSession) {
     ChatMessage.createWithAttributes('userId -> userId, 'body -> body)
   }
 
-  def findAll(userId: String): List[ChatMessageRow] = {
-    ChatMessage.where('userId -> userId).apply()
+  def findRows(limit: Int): List[ChatMessageRow] = {
+    ChatMessage.limit(limit).apply()
   }
 }
