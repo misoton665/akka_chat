@@ -1,10 +1,11 @@
 package com.example.chat
 
-import com.example.dbmodels.ChatUserService
+import com.example.dbmodels.{ChatMessageService, ChatUserService}
 import scalikejdbc.DBSession
 
 case class ChatSystemService()(implicit dBSession: DBSession) {
   private val chatUserService = ChatUserService()
+  private val chatMessageService = ChatMessageService()
 
   def signUp(userId: String, name: String): Option[Long] = {
     if (!chatUserService.exist(userId)) {
@@ -13,5 +14,9 @@ case class ChatSystemService()(implicit dBSession: DBSession) {
     } else {
       None
     }
+  }
+
+  def addMessage(userId: String, body: String): Option[Long] = {
+    chatMessageService.add(userId, body)
   }
 }
