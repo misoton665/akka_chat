@@ -1,11 +1,12 @@
 package com.example
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import com.example.chat.{ChatGroupActor, ChatSystemService}
 import com.example.routes.{ChatRoute, UsersRoute}
 import com.typesafe.config.ConfigFactory
 
@@ -23,6 +24,8 @@ object Hello extends App {
   implicit val materializer = ActorMaterializer()
   // needed for the future flatMap/onComplete in the end
   implicit val executionContext = system.dispatcher
+
+  implicit val chatSystemService = ChatSystemService(system.actorOf(Props[ChatGroupActor]))
 
   val logger = Logging(system, getClass)
 

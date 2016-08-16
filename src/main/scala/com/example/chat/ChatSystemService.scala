@@ -1,9 +1,10 @@
 package com.example.chat
 
+import akka.actor.ActorRef
 import com.example.dbmodels.{ChatMessageService, ChatUserService}
 import scalikejdbc.DBSession
 
-case class ChatSystemService()(implicit dBSession: DBSession) {
+case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSession) {
   private val chatUserService = ChatUserService()
   private val chatMessageService = ChatMessageService()
 

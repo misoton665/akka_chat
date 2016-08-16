@@ -1,10 +1,10 @@
 package com.example.routes
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
+import com.example.chat.ChatSystemService
 
-case class ChatRoute()(implicit actorSystem: ActorSystem, materializer: Materializer) extends RouteExtractable {
+case class ChatRoute()(implicit chatSystemService: ChatSystemService, materializer: Materializer) extends RouteExtractable {
 
   import akka.http.scaladsl.server.Directives._
 
