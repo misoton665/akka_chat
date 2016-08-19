@@ -7,7 +7,7 @@ import skinny.orm.{Alias, SkinnyCRUDMapper}
 
 case class ChatUserRow(id: Option[Long], userId: String, name: String, createAt: Option[DateTime])
 
-private case object ChatUser extends SkinnyCRUDMapper[ChatUserRow] {
+private case object ChatUserCRUD extends SkinnyCRUDMapper[ChatUserRow] {
 
   import scalikejdbc._
 
@@ -26,14 +26,14 @@ private case object ChatUser extends SkinnyCRUDMapper[ChatUserRow] {
 case class ChatUserDBGatewayImpl()(implicit dBSession: DBSession) extends ChatUserDBGateway {
 
   override def exist(userId: String): Boolean = {
-    ChatUser.where('userId -> userId).count('userId) >= 1
+    ChatUserCRUD.where('userId -> userId).count('userId) >= 1
   }
 
   override def create(userId: String, name: String): Long = {
-    ChatUser.createWithAttributes('userId -> userId, 'name -> name)
+    ChatUserCRUD.createWithAttributes('userId -> userId, 'name -> name)
   }
 
   override def find(userId: String): Option[ChatUserRow] = {
-    ChatUser.where('userId -> userId).apply().headOption
+    ChatUserCRUD.where('userId -> userId).apply().headOption
   }
 }

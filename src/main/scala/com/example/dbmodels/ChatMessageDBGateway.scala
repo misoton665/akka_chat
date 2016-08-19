@@ -7,7 +7,7 @@ import skinny.orm.{Alias, SkinnyCRUDMapper}
 
 case class ChatMessageRow(id: Long, userId: String, body: String, createAt: DateTime)
 
-private case object ChatMessage extends SkinnyCRUDMapper[ChatMessageRow] {
+private case object ChatMessageCRUD extends SkinnyCRUDMapper[ChatMessageRow] {
 
   import scalikejdbc._
 
@@ -26,10 +26,10 @@ private case object ChatMessage extends SkinnyCRUDMapper[ChatMessageRow] {
 case class ChatMessageDBGatewayImpl()(implicit dBSession: DBSession) extends ChatMessageDBGateway {
 
   override def add(userId: String, body: String): Long = {
-    ChatMessage.createWithAttributes('userId -> userId, 'body -> body)
+    ChatMessageCRUD.createWithAttributes('userId -> userId, 'body -> body)
   }
 
   override def findRows(limit: Int): List[ChatMessageRow] = {
-    ChatMessage.limit(limit).apply()
+    ChatMessageCRUD.limit(limit).apply()
   }
 }
