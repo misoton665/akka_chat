@@ -35,5 +35,4 @@ object ChatSystemMessages {
   }
 
   case class SystemMessage(body: String)
-
 }

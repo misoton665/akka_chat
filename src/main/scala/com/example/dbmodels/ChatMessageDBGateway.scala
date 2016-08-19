@@ -1,5 +1,6 @@
 package com.example.dbmodels
 
+import com.example.chat.ChatMessageDBGateway
 import org.joda.time.DateTime
 import scalikejdbc.DBSession
 import skinny.orm.{Alias, SkinnyCRUDMapper}
@@ -22,13 +23,13 @@ private case object ChatMessage extends SkinnyCRUDMapper[ChatMessageRow] {
     )
 }
 
-case class ChatMessageDBGateway()(implicit dBSession: DBSession) {
+case class ChatMessageDBGatewayImpl()(implicit dBSession: DBSession) extends ChatMessageDBGateway {
 
-  def add(userId: String, body: String): Long = {
+  override def add(userId: String, body: String): Long = {
     ChatMessage.createWithAttributes('userId -> userId, 'body -> body)
   }
 
-  def findRows(limit: Int): List[ChatMessageRow] = {
+  override def findRows(limit: Int): List[ChatMessageRow] = {
     ChatMessage.limit(limit).apply()
   }
 }

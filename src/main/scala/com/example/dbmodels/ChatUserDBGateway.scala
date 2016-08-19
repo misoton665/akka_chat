@@ -1,5 +1,6 @@
 package com.example.dbmodels
 
+import com.example.chat.ChatUserDBGateway
 import org.joda.time.DateTime
 import scalikejdbc.DBSession
 import skinny.orm.{Alias, SkinnyCRUDMapper}
@@ -22,17 +23,17 @@ private case object ChatUser extends SkinnyCRUDMapper[ChatUserRow] {
     )
 }
 
-case class ChatUserDBGateway()(implicit dBSession: DBSession) {
+case class ChatUserDBGatewayImpl()(implicit dBSession: DBSession) extends ChatUserDBGateway {
 
-  def exist(userId: String): Boolean = {
+  override def exist(userId: String): Boolean = {
     ChatUser.where('userId -> userId).count('userId) >= 1
   }
 
-  def create(userId: String, name: String): Long = {
+  override def create(userId: String, name: String): Long = {
     ChatUser.createWithAttributes('userId -> userId, 'name -> name)
   }
 
-  def find(userId: String): Option[ChatUserRow] = {
+  override def find(userId: String): Option[ChatUserRow] = {
     ChatUser.where('userId -> userId).apply().headOption
   }
 }
