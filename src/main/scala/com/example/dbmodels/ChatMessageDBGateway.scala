@@ -22,7 +22,7 @@ private case object ChatMessage extends SkinnyCRUDMapper[ChatMessageRow] {
     )
 }
 
-case class ChatMessageService()(implicit dBSession: DBSession) {
+case class ChatMessageDBGateway()(implicit dBSession: DBSession) {
 
   def add(userId: String, body: String): Long = {
     ChatMessage.createWithAttributes('userId -> userId, 'body -> body)

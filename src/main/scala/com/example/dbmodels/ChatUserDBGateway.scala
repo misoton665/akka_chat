@@ -22,7 +22,7 @@ private case object ChatUser extends SkinnyCRUDMapper[ChatUserRow] {
     )
 }
 
-case class ChatUserService()(implicit dBSession: DBSession) {
+case class ChatUserDBGateway()(implicit dBSession: DBSession) {
 
   def exist(userId: String): Boolean = {
     ChatUser.where('userId -> userId).count('userId) >= 1

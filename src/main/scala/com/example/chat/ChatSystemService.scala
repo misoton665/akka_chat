@@ -1,18 +1,18 @@
 package com.example.chat
 
 import akka.actor.ActorRef
-import com.example.dbmodels.{ChatMessageRow, ChatMessageService, ChatUserRow, ChatUserService}
+import com.example.dbmodels.{ChatMessageRow, ChatMessageDBGateway, ChatUserRow, ChatUserDBGateway}
 import scalikejdbc.DBSession
 
 case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSession) {
-  private val chatUserService = ChatUserService()
-  private val chatMessageService = ChatMessageService()
+  private val chatUserGateway = ChatUserDBGateway()
+  private val chatMessageGateway = ChatMessageDBGateway()
 
   type DBRowId = Long
 
   def signUp(userId: String, name: String): Option[DBRowId] = {
-    if (!chatUserService.exist(userId)) {
-      val rowId = chatUserService.create(userId, name)
+    if (!chatUserGateway.exist(userId)) {
+      val rowId = chatUserGateway.create(userId, name)
       Some(rowId)
     } else {
       None
@@ -20,18 +20,18 @@ case class ChatSystemService(chatGroupActor: ActorRef)(implicit dBSession: DBSes
   }
 
   def findUser(userId: String): Option[ChatUserRow] = {
-    chatUserService.find(userId)
+    chatUserGateway.find(userId)
   }
 
   def addMessage(userId: String, body: String): Option[DBRowId] = {
-    if (chatUserService.exist(userId)) {
-      Some(chatMessageService.add(userId, body))
+    if (chatUserGateway.exist(userId)) {
+      Some(chatMessageGateway.add(userId, body))
     } else {
       None
     }
   }
 
   def findMessages(limit: Int): List[ChatMessageRow] = {
-    chatMessageService.findRows(limit)
+    chatMessageGateway.findRows(limit)
   }
 }
