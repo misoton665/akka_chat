@@ -4,7 +4,7 @@ import org.joda.time.DateTime
 import scalikejdbc.DBSession
 import skinny.orm.{Alias, SkinnyCRUDMapper}
 
-case class ChatUserRow(id: Long, userId: String, name: String, createAt: DateTime)
+case class ChatUserRow(id: Option[Long], userId: String, name: String, createAt: Option[DateTime])
 
 private case object ChatUser extends SkinnyCRUDMapper[ChatUserRow] {
 
@@ -15,10 +15,10 @@ private case object ChatUser extends SkinnyCRUDMapper[ChatUserRow] {
 
   override def extract(rs: WrappedResultSet, n: ResultName[ChatUserRow]): ChatUserRow =
     ChatUserRow(
-      id = rs.long(n.id),
+      id = rs.longOpt(n.id),
       userId = rs.string(n.userId),
       name = rs.string(n.name),
-      createAt = rs.jodaDateTime(n.createAt)
+      createAt = rs.jodaDateTimeOpt(n.createAt)
     )
 }
 
